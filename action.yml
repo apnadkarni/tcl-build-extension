@@ -27,7 +27,7 @@ runs:
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }}
 
     - name: Build Unix or MingW64 extension
-      if: runner.os != 'Windows' || inputs.tcl-toolchain == "mingw64"
+      if: runner.os != 'Windows' || inputs.tcl-toolchain == 'mingw64'
       shell: bash
       run: |
         mkdir build
@@ -45,7 +45,7 @@ runs:
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} test
 
     - name: Test on Unix or MingW64
-      if: (runner.os != 'Windows' || inputs.tcl-toolchain == "mingw64") && inputs.tcl-dotest
+      if: (runner.os != 'Windows' || inputs.tcl-toolchain == 'mingw64') && inputs.tcl-dotest
       shell: bash
       env:
         ERROR_ON_FAILURES: 1
