@@ -1,0 +1,54 @@
+name: 'Build extension'
+description: "Builds a Tcl extension"
+author: "Ashok P. Nadkarni"
+inputs:
+  tcl-toolchain:
+    description: "Toolchain - mingw64 or vc. Only used on Windows"
+    required: false
+    default: 'vc'
+  tcl-dotest:
+    description: "Whether to run test suite or not"
+    required: false
+    default: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build Windows extension with nmake
+      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc'
+      shell: cmd
+      run: |
+        cd win
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }}
+
+    - name: Build Unix or MingW64 extension
+      if: runner.os != 'Windows' || inputs.tcl-toolchain == "mingw64"
+      shell: bash
+      run: |
+        mkdir build
+        cd build
+        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include --enable-64bit
+        make
+
+    - name: Test with Windows nmake
+      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc' && inputs.tcl-dotest
+      shell: cmd
+      env:
+        ERROR_ON_FAILURES: 1
+      run: |
+        cd win
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} test
+
+    - name: Test on Unix or MingW64
+      if: (runner.os != 'Windows' || inputs.tcl-toolchain == "mingw64") && inputs.tcl-dotest
+      shell: bash
+      env:
+        ERROR_ON_FAILURES: 1
+      run: |
+        cd build
+        make test
