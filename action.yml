@@ -33,9 +33,6 @@ runs:
         mkdir build
         cd build
         ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
-        ls -l `which gcc`
-        ls -l `which ld`
-        gcc --print-prog-name=ld
         make
 
     - name: Build on Unix
