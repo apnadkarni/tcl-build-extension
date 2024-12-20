@@ -32,7 +32,7 @@ runs:
       run: |
         mkdir build
         cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include --enable-64bit
+        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
         make
 
     - name: Test with Windows nmake
