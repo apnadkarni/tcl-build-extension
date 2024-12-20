@@ -10,6 +10,15 @@ inputs:
     description: "Whether to run test suite or not"
     required: false
     default: true
+  ext-config-opts:
+    description: "Additional options to pass to configure. Ignored for nmake"
+    required: false
+  ext-make-opts:
+    description: "Additional options to pass to make/nmake"
+    required: false
+  ext-test-opts:
+    description: "Additional options to pass to make/nmake test"
+    required: false
 
 runs:
   using: 'composite'
@@ -24,7 +33,7 @@ runs:
       shell: cmd
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }}
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.ext-make-opts }}
 
     - name: Build on Windows with MingW64 extension
       if: runner.os == 'Windows' && inputs.tcl-toolchain == 'mingw64'
@@ -32,8 +41,8 @@ runs:
       run: |
         mkdir build
         cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
-        make
+        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.ext-config-opts }}
+        make ${{ inputs.ext-make-opts }}
 
     - name: Build on Unix
       if: runner.os != 'Windows'
@@ -41,8 +50,8 @@ runs:
       run: |
         mkdir build
         cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
-        make
+        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.ext-config-opts }}
+        make ${{ inputs.ext-make-opts }}
 
     - name: Test with Windows nmake
       if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc' && inputs.tcl-dotest
@@ -51,7 +60,7 @@ runs:
         ERROR_ON_FAILURES: 1
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} test
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.ext-test-opts }} test
 
     - name: Test on Unix or MingW64
       if: (runner.os != 'Windows' || inputs.tcl-toolchain == 'mingw64') && inputs.tcl-dotest
@@ -60,4 +69,4 @@ runs:
         ERROR_ON_FAILURES: 1
       run: |
         cd build
-        make test
+        make test ${{ inputs.ext-test-opts }}
