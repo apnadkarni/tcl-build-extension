@@ -33,6 +33,9 @@ runs:
         mkdir build
         cd build
         ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
+        which gcc
+        which ld
+        gcc --print-prog-name=ld
         make
 
     - name: Test with Windows nmake
