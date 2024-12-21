@@ -2,71 +2,76 @@ name: 'Build extension'
 description: "Builds a Tcl extension"
 author: "Ashok P. Nadkarni"
 inputs:
-  tcl-toolchain:
+  toolchain:
     description: "Toolchain - mingw64 or vc. Only used on Windows"
     required: false
     default: 'vc'
-  tcl-dotest:
+  run-tests:
     description: "Whether to run test suite or not"
     required: false
     default: true
-  ext-config-opts:
+  config-opts:
     description: "Additional options to pass to configure. Ignored for nmake"
     required: false
-  ext-make-opts:
+  make-opts:
     description: "Additional options to pass to make/nmake"
     required: false
-  ext-test-opts:
+  test-opts:
     description: "Additional options to pass to make/nmake test"
     required: false
+  build-subdir:
+    description: "Subdirectory for builds. Not used for nmake"
+    required: false
+    default: 'build'
 
 runs:
   using: 'composite'
   steps:
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Build Windows extension with nmake
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc'
+      if: runner.os == 'Windows' && inputs.toolchain == 'vc'
       shell: cmd
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.ext-make-opts }}
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.make-opts }}
 
     - name: Build on Windows with MingW64 extension
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'mingw64'
+      if: runner.os == 'Windows' && inputs.toolchain == 'mingw64'
       shell: msys2 {0}
       run: |
-        mkdir build
-        cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.ext-config-opts }}
-        make ${{ inputs.ext-make-opts }}
+        mkdir ${{ runner.temp }}/${{ inputs.build-subdir }}
+        cd ${{ runner.temp }}/${{ inputs.build-subdir }}
+        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        make ${{ inputs.make-opts }}
 
     - name: Build on Unix
       if: runner.os != 'Windows'
       shell: bash
       run: |
-        mkdir build
-        cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.ext-config-opts }}
-        make ${{ inputs.ext-make-opts }}
+        mkdir ${{ runner.temp }}/${{ inputs.build-subdir }}
+        cd ${{ runner.temp }}/${{ inputs.build-subdir }}
+        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        make ${{ inputs.make-opts }}
 
     - name: Test with Windows nmake
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc' && inputs.tcl-dotest
+      if: runner.os == 'Windows' && inputs.toolchain == 'vc' && inputs.run-tests
       shell: cmd
       env:
         ERROR_ON_FAILURES: 1
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.ext-test-opts }} test
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.test-opts }} test
 
     - name: Test on Unix or MingW64
-      if: (runner.os != 'Windows' || inputs.tcl-toolchain == 'mingw64') && inputs.tcl-dotest
+      if: (runner.os != 'Windows' || inputs.toolchain == 'mingw64') && inputs.run-tests
       shell: bash
       env:
         ERROR_ON_FAILURES: 1
       run: |
-        cd build
-        make test ${{ inputs.ext-test-opts }}
+        cd ${{ runner.temp }}/${{ inputs.build-subdir }}
+        make test ${{ inputs.test-opts }}
