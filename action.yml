@@ -38,6 +38,7 @@ runs:
       shell: cmd
       run: |
         cd win
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.make-opts }} realclean
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.make-opts }}
 
     - name: Build on Windows with MingW64 extension
