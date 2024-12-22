@@ -56,7 +56,7 @@ runs:
         BUILDDIR=`cygpath "${{ runner.temp }}/${{ inputs.build-subdir }}"`
         mkdir -p $BUILDDIR
         cd $BUILDDIR
-        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        `${{ github.workspace }}`/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
         make ${{ inputs.make-opts }}
 
     - name: Build on Unix
