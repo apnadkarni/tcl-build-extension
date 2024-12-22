@@ -65,6 +65,7 @@ runs:
       shell: bash
       run: |
         BUILDDIR="${{ runner.temp }}/${{ inputs.build-subdir }}"
+        echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
         mkdir -p ${BUILDDIR}
         cd ${BUILDDIR}
         ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
