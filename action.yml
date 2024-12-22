@@ -59,9 +59,7 @@ runs:
         cd $BUILDDIR
         echo "Current dir is `pwd`"
         `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLDIR }} --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
-        ls
         make ${{ inputs.make-opts }}
-        make test ${{ inputs.test-opts }}
 
     - name: Build on Unix
       if: runner.os != 'Windows'
@@ -90,10 +88,6 @@ runs:
         ERROR_ON_FAILURES: 1
       run: |
         cd ${BUILDDIR}
-        echo "Current dir is `pwd`"
-        ls
-        cat Makefile
-        cat ${{ env.TCLDIR }}/lib/tclConfig.sh
         make test ${{ inputs.test-opts }}
 
     - name: Test on Unix
@@ -103,8 +97,4 @@ runs:
         ERROR_ON_FAILURES: 1
       run: |
         cd ${BUILDDIR}
-        echo "Current dir is `pwd`"
-        ls
-        cat Makefile
-        cat ${{ env.TCLDIR }}/lib/tclConfig.sh
         make test ${{ inputs.test-opts }}
