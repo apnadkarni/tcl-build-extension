@@ -88,5 +88,5 @@ runs:
       run: |
         cd ${BUILDDIR}
         cat Makefile
-        cat ${{ env.TCLDIR }}/tclConfig.sh
+        cat ${{ env.TCLDIR }}/lib/tclConfig.sh
         make test ${{ inputs.test-opts }}
