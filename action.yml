@@ -53,10 +53,11 @@ runs:
       if: runner.os == 'Windows' && inputs.toolchain == 'msys2'
       shell: msys2 {0}
       run: |
+        env
         BUILDDIR=`cygpath "${{ runner.temp }}/${{ inputs.build-subdir }}"`
         mkdir -p $BUILDDIR
         cd $BUILDDIR
-        `cygpath ${{ github.workspace }}`/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        `cygpath "${{ github.workspace }}"`/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
         make ${{ inputs.make-opts }}
 
     - name: Build on Unix
