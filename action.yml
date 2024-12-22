@@ -64,8 +64,9 @@ runs:
       if: runner.os != 'Windows'
       shell: bash
       run: |
-        mkdir ${{ runner.temp }}/${{ inputs.build-subdir }}
-        cd ${{ runner.temp }}/${{ inputs.build-subdir }}
+        BUILDDIR="${{ runner.temp }}/${{ inputs.build-subdir }}"
+        mkdir -p ${BUILDDIR}
+        cd ${BUILDDIR}
         ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
         make ${{ inputs.make-opts }}
 
@@ -84,6 +85,5 @@ runs:
       env:
         ERROR_ON_FAILURES: 1
       run: |
-        env
         cd ${BUILDDIR}
         make test ${{ inputs.test-opts }}
