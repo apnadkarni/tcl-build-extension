@@ -83,8 +83,21 @@ runs:
         cd win
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.test-opts }} test
 
-    - name: Test on Unix or MingW64
-      if: (runner.os != 'Windows' || inputs.toolchain == 'msys2') && inputs.run-tests
+    - name: Test on MingW64
+      if: runner.os == 'Windows' && inputs.toolchain == 'msys2' && inputs.run-tests
+      shell: msys2 {0}
+      env:
+        ERROR_ON_FAILURES: 1
+      run: |
+        cd ${BUILDDIR}
+        echo "Current dir is `pwd`"
+        ls
+        cat Makefile
+        cat ${{ env.TCLDIR }}/lib/tclConfig.sh
+        make test ${{ inputs.test-opts }}
+
+    - name: Test on Unix
+      if: runner.os != 'Windows' && inputs.run-tests
       shell: bash
       env:
         ERROR_ON_FAILURES: 1
