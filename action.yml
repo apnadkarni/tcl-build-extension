@@ -53,8 +53,8 @@ runs:
       if: runner.os == 'Windows' && inputs.toolchain == 'msys2'
       shell: msys2 {0}
       run: |
-        env
         BUILDDIR=`cygpath "${{ runner.temp }}/${{ inputs.build-subdir }}"`
+        echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
         mkdir -p $BUILDDIR
         cd $BUILDDIR
         `cygpath "${{ github.workspace }}"`/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
@@ -84,5 +84,6 @@ runs:
       env:
         ERROR_ON_FAILURES: 1
       run: |
-        cd ${{ runner.temp }}/${{ inputs.build-subdir }}
+        env
+        cd ${BUILDDIR}
         make test ${{ inputs.test-opts }}
