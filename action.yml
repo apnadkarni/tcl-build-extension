@@ -2,62 +2,99 @@ name: 'Build extension'
 description: "Builds a Tcl extension"
 author: "Ashok P. Nadkarni"
 inputs:
-  tcl-toolchain:
-    description: "Toolchain - mingw64 or vc. Only used on Windows"
-    required: false
-    default: 'vc'
-  tcl-dotest:
+  toolchain:
+    description: "Toolchain - msys2 or vc. Only used on Windows"
+    required: true
+  run-tests:
     description: "Whether to run test suite or not"
     required: false
     default: true
+  config-opts:
+    description: "Additional options to pass to configure. Ignored for nmake"
+    required: false
+  make-opts:
+    description: "Additional options to pass to make/nmake"
+    required: false
+  test-opts:
+    description: "Additional options to pass to make/nmake test"
+    required: false
+  build-subdir:
+    description: "Subdirectory for builds. Not used for nmake"
+    required: false
+    default: 'build'
 
 runs:
   using: 'composite'
   steps:
+
+    # Validation of inputs
+
+    - name: Validate toolchain on Windows
+      if: runner.os == 'windows' && (inputs.toolchain == '' || ! contains('vc,msys2', inputs.toolchain))
+      shell: pwsh
+      run: |
+        echo "::error::Invalid toolchain value (${{ inputs.toolchain }}) Must be vc or msys2."
+        exit 1
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Build Windows extension with nmake
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc'
+      if: runner.os == 'Windows' && inputs.toolchain == 'vc'
       shell: cmd
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }}
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.make-opts }} realclean
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.make-opts }}
 
     - name: Build on Windows with MingW64 extension
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'mingw64'
+      if: runner.os == 'Windows' && inputs.toolchain == 'msys2'
       shell: msys2 {0}
       run: |
-        mkdir build
-        cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
-        make
+        BUILDDIR=`cygpath -m "${{ runner.temp }}/${{ inputs.build-subdir }}"`
+        echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
+        mkdir -p $BUILDDIR
+        cd $BUILDDIR
+        echo "Current dir is `pwd`"
+        `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLDIR }} --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        make ${{ inputs.make-opts }}
 
     - name: Build on Unix
       if: runner.os != 'Windows'
       shell: bash
       run: |
-        mkdir build
-        cd build
-        ../configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include
-        make
+        BUILDDIR="${{ runner.temp }}/${{ inputs.build-subdir }}"
+        echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
+        mkdir -p ${BUILDDIR}
+        cd ${BUILDDIR}
+        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLDIR }}/lib --with-tclinclude=${{ env.TCLDIR }}/include ${{ inputs.config-opts }}
+        make ${{ inputs.make-opts }}
 
     - name: Test with Windows nmake
-      if: runner.os == 'Windows' && inputs.tcl-toolchain == 'vc' && inputs.tcl-dotest
+      if: runner.os == 'Windows' && inputs.toolchain == 'vc' && inputs.run-tests
       shell: cmd
       env:
         ERROR_ON_FAILURES: 1
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} test
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLDIR }} ${{ inputs.test-opts }} test
 
-    - name: Test on Unix or MingW64
-      if: (runner.os != 'Windows' || inputs.tcl-toolchain == 'mingw64') && inputs.tcl-dotest
+    - name: Test on MingW64
+      if: runner.os == 'Windows' && inputs.toolchain == 'msys2' && inputs.run-tests
+      shell: msys2 {0}
+      env:
+        ERROR_ON_FAILURES: 1
+      run: |
+        cd ${BUILDDIR}
+        make test ${{ inputs.test-opts }}
+
+    - name: Test on Unix
+      if: runner.os != 'Windows' && inputs.run-tests
       shell: bash
       env:
         ERROR_ON_FAILURES: 1
       run: |
-        cd build
-        make test
+        cd ${BUILDDIR}
+        make test ${{ inputs.test-opts }}
