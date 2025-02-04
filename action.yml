@@ -4,7 +4,7 @@ author: "Ashok P. Nadkarni"
 inputs:
   toolchain:
     description: "Toolchain - msys2 or vc. Only used on Windows"
-    required: true
+    required: false
   run-tests:
     description: "Whether to run test suite or not"
     required: false
