@@ -3,11 +3,12 @@
 This action build a Tcl or Tk extension. It is intended to be used in
 conjunction with the [tcl-setup](https://github.com/apnadkarni/tcl-setup)
 action which sets up a Tcl and Tk build environment and
-[Tcl extension workflow templates]. The action assumes the extension uses
-the TEA framework to do autoconf or nmake based builds.
+the [workflow templates](https://github.com/apnadkarni/tcl-extension-template/tree/main/.github/workflows) from
+[Tcl extension template](https://github.com/apnadkarni/tcl-extension-template).
+The action assumes the extension is built using autoconf or nmake
+as per the TEA framework.
 
 # Usage
-
 
 The `TCLINSTALLDIR` environment variable should be set to the Tcl
 installation directory before calling this action. If the
@@ -31,7 +32,7 @@ Example:
   uses: apnadkarni/tcl-build-extension
   with:
     # The tool chain to use. Only used on Windows. Must be 'vc' for Visual C++
-    # or 'msys2' for MingW64. Required for Windows..
+    # or 'msys2' for MingW64. Required on Windows.
     toolchain: 'vc'
 
     # Additional options to pass to configure. Only used for autoconf
