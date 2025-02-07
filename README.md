@@ -3,8 +3,9 @@
 This action build a Tcl or Tk extension. It is intended to be used in
 conjunction with the [tcl-setup](https://github.com/apnadkarni/tcl-setup)
 action which sets up a Tcl and Tk build environment and
-[Tcl extension workflow templates]. The action assumes the extension uses
-the TEA framework to do autoconf or nmake based builds.
+[Tcl extension workflow templates](https://github.com/apnadkarni/tcl-extension-template#github-action-workflows).
+The action assumes the extension uses the TEA framework to do autoconf
+or nmake based builds.
 
 # Usage
 
@@ -53,4 +54,7 @@ Example:
     # Boolean to control whether tests are run. Optional. Defaults to true.
     run-tests: true
 ```
+
+See [Tcl extension workflow templates](https://github.com/apnadkarni/tcl-extension-template#github-action-workflows)
+for a complete example.
 
