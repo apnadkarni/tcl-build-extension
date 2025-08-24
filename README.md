@@ -28,7 +28,7 @@ Example:
 
 ```yaml
 - name: Build extension
-  uses: apnadkarni/tcl-build-extension
+  uses: apnadkarni/tcl-build-extension@v1
   with:
     # The tool chain to use. Only used on Windows. Must be 'vc' for Visual C++
     # or 'msys2' for MingW64. Required on Windows.
@@ -51,7 +51,10 @@ Example:
     build-subdir:
 
     # Boolean to control whether tests are run. Optional. Defaults to true.
-    run-tests: true
+    # IMPORTANT: actions always treat inputs as strings, not booleans.
+    # To NOT run tests, pass 'false', not false. Any other value will run
+    # tests.
+    run-tests: 'true'
 ```
 
 See [Tcl extension workflow templates](https://github.com/apnadkarni/tcl-extension-template#github-action-workflows)

@@ -8,8 +8,7 @@ inputs:
   run-tests:
     description: "Whether to run test suite or not"
     required: false
-    default: true
-    type: boolean
+    default: 'true'
   config-opts:
     description: "Additional options to pass to configure. Ignored for nmake"
     required: false
@@ -74,7 +73,7 @@ runs:
         make ${{ inputs.make-opts }}
 
     - name: Test with Windows nmake
-      if: runner.os == 'Windows' && inputs.toolchain == 'vc' && inputs.run-tests
+      if: runner.os == 'Windows' && inputs.toolchain == 'vc' && inputs.run-tests != 'false'
       shell: cmd
       env:
         ERROR_ON_FAILURES: 1
@@ -83,7 +82,7 @@ runs:
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.test-opts }} test
 
     - name: Test on MingW64
-      if: runner.os == 'Windows' && inputs.toolchain == 'msys2' && inputs.run-tests
+      if: runner.os == 'Windows' && inputs.toolchain == 'msys2' && inputs.run-tests != 'false'
       shell: msys2 {0}
       env:
         ERROR_ON_FAILURES: 1
@@ -92,7 +91,7 @@ runs:
         make test ${{ inputs.test-opts }}
 
     - name: Test on Unix
-      if: runner.os != 'Windows' && inputs.run-tests
+      if: runner.os != 'Windows' && inputs.run-tests != 'false'
       shell: bash
       env:
         ERROR_ON_FAILURES: 1
