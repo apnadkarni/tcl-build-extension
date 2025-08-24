@@ -9,6 +9,7 @@ inputs:
     description: "Whether to run test suite or not"
     required: false
     default: true
+    type: boolean
   config-opts:
     description: "Additional options to pass to configure. Ignored for nmake"
     required: false
