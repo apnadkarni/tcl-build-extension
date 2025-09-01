@@ -74,11 +74,7 @@ runs:
         echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
         mkdir -p ${BUILDDIR}
         cd ${BUILDDIR}
-        echo ${GITHUB_WORKSPACE}
-        ls ${GITHUB_WORKSPACE}
-        echo ${{ env.TCLGA_INSTALL }}
-        ls ${{ env.TCLGA_INSTALL }}
-        ${{ github.workspace }}/extension/configure --with-tcl=${{ env.TCLGA_INSTALL }}/lib --with-tclinclude=${{ env.TCLGA_INSTALL }}/include ${{ inputs.config-opts }} || {
+        $GITHUB_WORKSPACE/extension/configure --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
            cat config.log
            echo "::error::Configure failed"
            exit 1
