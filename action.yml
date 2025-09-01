@@ -39,7 +39,7 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        clean: false
+        clean: "false"
         submodules: true
 
     - name: Build Windows extension with nmake
