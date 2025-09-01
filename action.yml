@@ -46,8 +46,8 @@ runs:
       shell: cmd
       run: |
         cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.make-opts }} realclean
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.make-opts }}
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }} realclean
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }}
 
     - name: Build on Windows with MingW64 extension
       if: runner.os == 'Windows' && inputs.toolchain == 'msys2'
@@ -58,7 +58,7 @@ runs:
         mkdir -p $BUILDDIR
         cd $BUILDDIR
         echo "Current dir is `pwd`"
-        `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLINSTALLDIR }} --with-tcl=${{ env.TCLINSTALLDIR }}/lib --with-tclinclude=${{ env.TCLINSTALLDIR }}/include ${{ inputs.config-opts }} || {
+        `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLGA_INSTALL }} --with-tcl=${{ env.TCLGA_INSTALL }}/lib --with-tclinclude=${{ env.TCLGA_INSTALL }}/include ${{ inputs.config-opts }} || {
            cat config.log
            echo "::error::Configure failed"
            exit 1
@@ -73,7 +73,7 @@ runs:
         echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
         mkdir -p ${BUILDDIR}
         cd ${BUILDDIR}
-        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLINSTALLDIR }}/lib --with-tclinclude=${{ env.TCLINSTALLDIR }}/include ${{ inputs.config-opts }} || {
+        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLGA_INSTALL }}/lib --with-tclinclude=${{ env.TCLGA_INSTALL }}/include ${{ inputs.config-opts }} || {
            cat config.log
            echo "::error::Configure failed"
            exit 1
