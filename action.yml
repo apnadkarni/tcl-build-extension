@@ -59,7 +59,7 @@ runs:
         mkdir -p $BUILDDIR
         cd $BUILDDIR
         echo "Current dir is `pwd`"
-        `cygpath -m "$GITHUB_WORKSPACE"`/configure --prefix=$TCLGA_INSTALL --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
+        `cygpath -m "$GITHUB_WORKSPACE"`/configure --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
            cat config.log
            echo "::error::Configure failed"
            exit 1
