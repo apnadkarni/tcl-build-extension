@@ -1,7 +1,10 @@
-# tcl-build-extension
+# tcl-build-extension v2
+
+*Note: tcl-build-extension v2 is not compatible with version
+[v1](https://github.com/apnadkarni/tcl-build-extension/blob/v1/README.md).*
 
 This action build a Tcl or Tk extension. It is intended to be used in
-conjunction with the [tcl-setup](https://github.com/apnadkarni/tcl-setup)
+conjunction with the [tcl-setup@v2](https://github.com/apnadkarni/tcl-setup)
 action which sets up a Tcl and Tk build environment and
 [Tcl extension workflow templates](https://github.com/apnadkarni/tcl-extension-template#github-action-workflows).
 The action assumes the extension uses the TEA framework to do autoconf
@@ -9,7 +12,7 @@ or nmake based builds.
 
 # Usage
 
-The `TCLINSTALLDIR` environment variable should be set to the Tcl
+The `TCLGA_INSTALL` environment variable should be set to the Tcl
 installation directory before calling this action. If the
 [tcl-setup](https://github.com/apnadkarni/tcl-setup) action is
 used to set up the Tcl environment, this is automatically done
@@ -28,7 +31,7 @@ Example:
 
 ```yaml
 - name: Build extension
-  uses: apnadkarni/tcl-build-extension@v1
+  uses: apnadkarni/tcl-build-extension@v2
   with:
     # The tool chain to use. Only used on Windows. Must be 'vc' for Visual C++
     # or 'msys2' for MingW64. Required on Windows.
