@@ -46,7 +46,7 @@ runs:
       if: runner.os == 'Windows' && inputs.toolchain == 'vc'
       shell: cmd
       run: |
-        cd win
+        cd extension/win
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }} realclean
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }}
 
@@ -59,7 +59,7 @@ runs:
         mkdir -p $BUILDDIR
         cd $BUILDDIR
         echo "Current dir is `pwd`"
-        `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLGA_INSTALL }} --with-tcl=${{ env.TCLGA_INSTALL }}/lib --with-tclinclude=${{ env.TCLGA_INSTALL }}/include ${{ inputs.config-opts }} || {
+        `cygpath -m "$GITHUB_WORKSPACE"`/configure --prefix=$TCLGA_INSTALL --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
            cat config.log
            echo "::error::Configure failed"
            exit 1
@@ -87,7 +87,7 @@ runs:
       env:
         ERROR_ON_FAILURES: 1
       run: |
-        cd win
+        cd extension/win
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.test-opts }} test
 
     - name: Test on MingW64
