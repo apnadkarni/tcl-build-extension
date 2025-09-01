@@ -45,8 +45,8 @@ runs:
     - name: Build Windows extension with nmake
       if: runner.os == 'Windows' && inputs.toolchain == 'vc'
       shell: cmd
+      working-directory: extension/win
       run: |
-        cd extension/win
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }} realclean
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }}
 
@@ -86,8 +86,9 @@ runs:
       shell: cmd
       env:
         ERROR_ON_FAILURES: 1
+      working-directory: extension/win
       run: |
-        cd extension/win
+        cd extension\win
         nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.test-opts }} test
 
     - name: Test on MingW64
