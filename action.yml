@@ -39,15 +39,16 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        path: extension
         submodules: true
 
     - name: Build Windows extension with nmake
       if: runner.os == 'Windows' && inputs.toolchain == 'vc'
       shell: cmd
+      working-directory: extension/win
       run: |
-        cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.make-opts }} realclean
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.make-opts }}
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }} realclean
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.make-opts }}
 
     - name: Build on Windows with MingW64 extension
       if: runner.os == 'Windows' && inputs.toolchain == 'msys2'
@@ -58,7 +59,11 @@ runs:
         mkdir -p $BUILDDIR
         cd $BUILDDIR
         echo "Current dir is `pwd`"
-        `cygpath -m "${{ github.workspace }}"`/configure --prefix=${{ env.TCLINSTALLDIR }} --with-tcl=${{ env.TCLINSTALLDIR }}/lib --with-tclinclude=${{ env.TCLINSTALLDIR }}/include ${{ inputs.config-opts }}
+        `cygpath -m "$GITHUB_WORKSPACE"`/extension/configure --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
+           cat config.log
+           echo "::error::Configure failed"
+           exit 1
+        }
         make ${{ inputs.make-opts }}
 
     - name: Build on Unix
@@ -69,7 +74,11 @@ runs:
         echo "BUILDDIR=${BUILDDIR}" >> $GITHUB_ENV
         mkdir -p ${BUILDDIR}
         cd ${BUILDDIR}
-        ${{ github.workspace }}/configure --with-tcl=${{ env.TCLINSTALLDIR }}/lib --with-tclinclude=${{ env.TCLINSTALLDIR }}/include ${{ inputs.config-opts }}
+        $GITHUB_WORKSPACE/extension/configure --with-tcl=$TCLGA_INSTALL/lib --with-tclinclude=$TCLGA_INSTALL/include ${{ inputs.config-opts }} || {
+           cat config.log
+           echo "::error::Configure failed"
+           exit 1
+        }
         make ${{ inputs.make-opts }}
 
     - name: Test with Windows nmake
@@ -77,9 +86,10 @@ runs:
       shell: cmd
       env:
         ERROR_ON_FAILURES: 1
+      working-directory: extension/win
       run: |
-        cd win
-        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLINSTALLDIR }} ${{ inputs.test-opts }} test
+        cd extension\win
+        nmake /s /f makefile.vc INSTALLDIR=${{ env.TCLGA_INSTALL }} ${{ inputs.test-opts }} test
 
     - name: Test on MingW64
       if: runner.os == 'Windows' && inputs.toolchain == 'msys2' && inputs.run-tests != 'false'
